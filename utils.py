@@ -63,16 +63,21 @@ def make_segments(wav_dir, out_dir):
         f.write("{} {} 0.00 {}\n".format(uttid, spkid, str(duration)))
     f.close()
 
-def make_utt2spk(wave_dir):
-    files = find_files(wave_dir)
-    # print(files)
-    f = open("utt2spk", "w")
-    for path in files:
-        utter_id = path.name.split('.')[0]
-        recording_id = path.name.split('.')[0].split('-')[0]
+def make_utt2spk(wav_dir, out_dir):
+    f = open(os.path.join(out_dir, "utt2spk"), "w")
+    fr = open(os.path.join(wav_dir, "train.txt"), "r")
+    lines = fr.readlines()
 
-        f.write(utter_id + " " + recording_id + "\n")
+    for line in lines:
+        parts = line.strip().split()
+        uttid = parts[0].split('.')[0]
+        spkid = parts[2]
+        if spkid == "0":
+            spkid = "fake"
+
+        f.write("{} {}\n".format(uttid, spkid))
     f.close()
 
 if __name__ == "__main__":
-    make_segments("/Users/ranley/Downloads/train")
+    make_segments("/Users/ranley/Downloads/train", "")
+    # make_utt2spk("/Users/ranley/Downloads/train", "")
