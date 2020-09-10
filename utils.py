@@ -34,14 +34,14 @@ def load_n_col(filename, first_title=True, numpy=False):
         columns = [list(i) for i in columns]
     return columns
 
-def make_wav_scp(wave_dir):
-    files = find_files(wave_dir)
-    f = open("wav.scp", "w")
+def make_wav_scp(wav_dir, out_dir):
+    files = find_files(wav_dir)
+    f = open(os.path.join(out_dir, "wav.scp"), "w")
     for path in files:
-        recording_id = path.name.split('.')[0].split('-')[0]
+        uttid = path.name.split('.')[0]
         file_path = os.path.abspath(path)
         # print(path)
-        f.write(recording_id + " " + file_path + "\n")
+        f.write("{} {}\n".format(uttid, file_path))
     f.close()
 
 def make_segments(wav_dir, out_dir):
@@ -78,6 +78,30 @@ def make_utt2spk(wav_dir, out_dir):
         f.write("{} {}\n".format(uttid, spkid))
     f.close()
 
+def make_spk2utt(utt2spk, out_dir):
+    cols = load_n_col(utt2spk)
+    spks = cols[1]
+    f = open(os.path.join(out_dir, "spk2utt"), "w")
+    prev = spks[0]
+    cur_list = []
+
+    for i in range(len(spks)):
+        cur = spks[i]
+        if prev == cur:
+            cur_list.append(cols[0][i])
+        else:
+            res = ""
+            for item in cur_list:
+                res += " " + item
+            f.write("{}{}\n".format(prev, res))
+            prev = cur
+    
+    f.close()
+
+
+
+
 if __name__ == "__main__":
-    make_segments("/Users/ranley/Downloads/train", "")
+    # make_segments("/Users/ranley/Downloads/train", "")
     # make_utt2spk("/Users/ranley/Downloads/train", "")
+    make_wav_scp("/Users/ranley/Downloads/train", "")
