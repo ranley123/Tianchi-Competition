@@ -4,6 +4,17 @@ from pathlib import Path
 import shutil
 from pydub import AudioSegment
 
+def rename_files(wav_dir):
+    fr = open(os.path.join(wav_dir, "train.txt"), "r")
+    lines = fr.readlines()
+
+    for line in lines:
+        parts = line.strip().split(" ")
+        new_uttid = "{}-{}".format(parts[2], parts[0])
+        os.rename(os.path.join(wav_dir, parts[0]), os.path.join(wav_dir, new_uttid))
+    
+    fr.close()
+
 def find_files(dir, pattern="*.wav"):
     files = []
     for path in Path(dir).rglob(pattern):
@@ -22,7 +33,7 @@ def get_audio_duration(filename):
     return round(duration,4)
 
 def get_utt2spk_dict(wav_dir):
-    f = open(os.path.join(wav_dir, "train.txt"))
+    f = open(os.path.join(wav_dir, "newtrain.txt"))
     lines = f.readlines()
     utt2spk_dict = {}
 
@@ -53,20 +64,17 @@ def make_wav_scp(wav_dir, out_dir):
     for path in files:
         uttid = path.name.split('.')[0]
         file_path = os.path.abspath(path)
-        # print(path)
         f.write("{} {}\n".format(uttid, file_path))
     f.close()
 
 def make_segments(wav_dir, out_dir):
     files = find_files(wav_dir)
-    utt2spk_dict = get_utt2spk_dict(wav_dir)
-    assert(len(files) == len(utt2spk_dict))
-
     f = open(os.path.join(out_dir, "segments"), "w")
+
     for i in range(len(files)):
         path = files[i]
         uttid = path.name.split('.')[0]
-        spkid = utt2spk_dict[uttid]
+        spkid = path.name.split('.')[0].split("-")[0]
         duration = get_audio_duration(path)
         
         f.write("{} {} 0.00 {}\n".format(uttid, spkid, str(duration)))
@@ -74,7 +82,6 @@ def make_segments(wav_dir, out_dir):
 
 def make_utt2spk(wav_dir, out_dir):
     f = open(os.path.join(out_dir, "utt2spk"), "w")
-    fr = open(os.path.join(wav_dir, "train.txt"), "r")
     lines = fr.readlines()
 
     for line in lines:
@@ -87,8 +94,7 @@ def make_utt2spk(wav_dir, out_dir):
 
 
 if __name__ == "__main__":
-    
+    rename_files("data/train")
     make_wav_scp("data/train", "data/train")
-    make_utt2spk("data/train", "data/train")
+    #make_utt2spk("data/train", "data/train")
     make_segments("data/train", "data/train")
-
