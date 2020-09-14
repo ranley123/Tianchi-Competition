@@ -8,6 +8,7 @@ def find_files(dir, pattern="*.wav"):
     files = []
     for path in Path(dir).rglob(pattern):
         files.append(path)
+    files = sorted(files)
     return files
 
 def extract_wav(in_dir, out_dir):
@@ -103,3 +104,4 @@ if __name__ == "__main__":
     make_segments("/Users/ranley/Downloads/train", "data/train")
     # make_utt2spk("/Users/ranley/Downloads/train", "")
     # make_wav_scp("/Users/ranley/Downloads/train", "")
+
