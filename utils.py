@@ -21,6 +21,22 @@ def get_audio_duration(filename):
     duration = sound.duration_seconds
     return round(duration,4)
 
+def get_utt2spk_dict(wav_dir):
+    f = open(os.path.join(wav_dir, "train.txt"))
+    lines = f.readlines()
+    utt2spk_dict = {}
+
+    for line in lines:
+        parts = line.strip().split()
+        uttid = parts[0].split('.')[0]
+        spkid = parts[2]
+        if spkid == "0":
+            spkid = "fake"
+        utt2spk_dict[uttid] = spkid
+    return utt2spk_dict
+
+
+
 def load_n_col(filename, numpy=False):
     data = []
     with open(filename) as fp:
@@ -45,18 +61,14 @@ def make_wav_scp(wav_dir, out_dir):
 
 def make_segments(wav_dir, out_dir):
     files = find_files(wav_dir)
-    cols = load_n_col(os.path.join(wav_dir,"train.txt"))
-    assert(len(files) == len(cols[0]))
+    utt2spk_dict = get_utt2spk_dict(wav_dir)
+    assert(len(files) == len(utt2spk_dict))
 
     f = open(os.path.join(out_dir, "segments"), "w")
     for i in range(len(files)):
         path = files[i]
         uttid = path.name.split('.')[0]
-        spkid = ""
-        if int(cols[1][i]) == 1:
-            spkid = "fake"
-        else:
-            spkid = cols[2][i]
+        spkid = utt2spk_dict[uttid]
         duration = get_audio_duration(path)
         
         f.write("{} {} 0.00 {}\n".format(uttid, spkid, str(duration)))
@@ -77,31 +89,10 @@ def make_utt2spk(wav_dir, out_dir):
         f.write("{} {}\n".format(uttid, spkid))
     f.close()
 
-def make_spk2utt(utt2spk, out_dir):
-    cols = load_n_col(utt2spk)
-    spks = cols[1]
-    f = open(os.path.join(out_dir, "spk2utt"), "w")
-    prev = spks[0]
-    cur_list = []
-
-    for i in range(len(spks)):
-        cur = spks[i]
-        if prev == cur:
-            cur_list.append(cols[0][i])
-        else:
-            res = ""
-            for item in cur_list:
-                res += " " + item
-            f.write("{}{}\n".format(prev, res))
-            prev = cur
-    
-    f.close()
-
-
-
 
 if __name__ == "__main__":
-    make_segments("/Users/ranley/Downloads/train", "data/train")
-    # make_utt2spk("/Users/ranley/Downloads/train", "")
-    # make_wav_scp("/Users/ranley/Downloads/train", "")
+    
+    make_wav_scp("/Users/ranley/Downloads/train", "")
+    make_utt2spk("/Users/ranley/Downloads/train", "")
+    make_segments("/Users/ranley/Downloads/train", "")
 
