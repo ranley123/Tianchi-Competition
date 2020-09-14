@@ -8,7 +8,7 @@ def find_files(dir, pattern="*.wav"):
     files = []
     for path in Path(dir).rglob(pattern):
         files.append(path)
-    files = sorted(files)
+    #files = sorted(files)
     return files
 
 def extract_wav(in_dir, out_dir):
@@ -30,8 +30,6 @@ def get_utt2spk_dict(wav_dir):
         parts = line.strip().split()
         uttid = parts[0].split('.')[0]
         spkid = parts[2]
-        if spkid == "0":
-            spkid = "fake"
         utt2spk_dict[uttid] = spkid
     return utt2spk_dict
 
@@ -83,8 +81,6 @@ def make_utt2spk(wav_dir, out_dir):
         parts = line.strip().split()
         uttid = parts[0].split('.')[0]
         spkid = parts[2]
-        if spkid == "0":
-            spkid = "fake"
 
         f.write("{} {}\n".format(uttid, spkid))
     f.close()
@@ -92,7 +88,7 @@ def make_utt2spk(wav_dir, out_dir):
 
 if __name__ == "__main__":
     
-    make_wav_scp("/Users/ranley/Downloads/train", "")
-    make_utt2spk("/Users/ranley/Downloads/train", "")
-    make_segments("/Users/ranley/Downloads/train", "")
+    make_wav_scp("data/train", "data/train")
+    make_utt2spk("data/train", "data/train")
+    make_segments("data/train", "data/train")
 
