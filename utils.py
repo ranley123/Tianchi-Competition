@@ -20,13 +20,11 @@ def get_audio_duration(filename):
     duration = sound.duration_seconds
     return round(duration,4)
 
-def load_n_col(filename, first_title=True, numpy=False):
+def load_n_col(filename, numpy=False):
     data = []
     with open(filename) as fp:
         for line in fp:
             data.append(line.strip().split())
-    if first_title:
-        data = data[1:]
     columns = list(zip(*data))
     if numpy:
         columns = [np.array(list(i)) for i in columns]
@@ -102,6 +100,10 @@ def make_spk2utt(utt2spk, out_dir):
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     make_segments("/Users/ranley/Downloads/train", "")
+=======
+    make_segments("/Users/ranley/Downloads/train", "data/train")
+>>>>>>> 3ea38afafa8db8a7b24484e9453161ae46a515b2
     # make_utt2spk("/Users/ranley/Downloads/train", "")
     # make_wav_scp("/Users/ranley/Downloads/train", "")
