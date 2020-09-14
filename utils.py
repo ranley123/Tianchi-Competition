@@ -100,10 +100,6 @@ def make_spk2utt(utt2spk, out_dir):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    make_segments("/Users/ranley/Downloads/train", "")
-=======
     make_segments("/Users/ranley/Downloads/train", "data/train")
->>>>>>> 3ea38afafa8db8a7b24484e9453161ae46a515b2
     # make_utt2spk("/Users/ranley/Downloads/train", "")
     # make_wav_scp("/Users/ranley/Downloads/train", "")
