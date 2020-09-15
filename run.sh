@@ -4,7 +4,7 @@ set -e
 mfccdir=`pwd`/mfcc
 vaddir=`pwd`/mfcc
 data_root=data/train
-stage=2
+stage=3
 nnet_dir=exp/xvector_models
 num_components=1024 # the number of UBM components (used for VB resegmentation)
 ivector_dim=400 # the dimension of i-vector (used for VB resegmentation)
@@ -27,11 +27,23 @@ fi
 if [ $stage -le 2 ]; then
 
     for name in train; do
-    	steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 40 \
-      --cmd "$train_cmd" --write-utt2num-frames true \
-      data/$name exp/make_mfcc $mfccdir
-    	utils/fix_data_dir.sh data/$name  
+    #	steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 40 \
+    #  --cmd "$train_cmd" --write-utt2num-frames true\
+    #  data/$name exp/make_mfcc $mfccdir
+   # 	utils/fix_data_dir.sh data/$name
+
+ #	sid/compute_vad_decision.sh --nj 20 --cmd "$train_cmd" \
+ #     data/$name exp/make_vad $vaddir
+ #   utils/fix_data_dir.sh data/$name
+
+	local/nnet3/xvector/prepare_feats.sh --nj 20 --cmd "$train_cmd" \
+      data/$name data/${name}_cmn exp/${name}_cmn
+      utils/fix_data_dir.sh data/${name}_cmn    
     done
 fi
 
-
+if [ $stage -le 3 ]; then
+	local/nnet3/xvector/tuning/run_xvector_1a.sh --stage $stage --train-stage -1 \
+  --data data/train_cmn --nnet-dir $nnet_dir \
+  --egs-dir $nnet_dir/egs
+fi
