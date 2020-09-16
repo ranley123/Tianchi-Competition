@@ -67,34 +67,43 @@ def make_wav_scp(wav_dir, out_dir):
         f.write("{} {}\n".format(uttid, file_path))
     f.close()
 
-def make_segments(wav_dir, out_dir):
+def make_segments(wav_dir, out_dir, is_test=False):
     files = find_files(wav_dir)
     f = open(os.path.join(out_dir, "segments"), "w")
 
     for i in range(len(files)):
         path = files[i]
         uttid = path.name.split('.')[0]
-        spkid = path.name.split('.')[0].split("-")[0]
+        spkid = ""
+        if is_test == False:
+            spkid = path.name.split('.')[0].split("-")[0]
+        else:
+            spkid = uttid
         duration = get_audio_duration(path)
         
         f.write("{} {} 0.00 {}\n".format(uttid, spkid, str(duration)))
     f.close()
 
-def make_utt2spk(wav_dir, out_dir):
-    f = open(os.path.join(out_dir, "utt2spk"), "w")
-    lines = fr.readlines()
+def make_utt2spk(wav_dir, out_dir, is_test=False):
+    fr = open(os.path.join(out_dir, "utt2spk"), "w")
+    files = find_files(wav_dir)
 
-    for line in lines:
+    for line in files:
         parts = line.strip().split()
         uttid = parts[0].split('.')[0]
-        spkid = parts[2]
+        spk_id = ""
+        if is_test:
+            spk_id = uttid
+        else:
+            spkid = parts[2]
+
 
         f.write("{} {}\n".format(uttid, spkid))
     f.close()
 
 
 if __name__ == "__main__":
-    rename_files("data/train")
-    make_wav_scp("data/train", "data/train")
+    #rename_files("data/test")
+    make_wav_scp("data/test", "data/test")
     #make_utt2spk("data/train", "data/train")
-    make_segments("data/train", "data/train")
+    make_segments("data/test", "data/test", is_test=True)
